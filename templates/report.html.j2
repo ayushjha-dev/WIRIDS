@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WIDIRS Forensic Report {{ report_id }}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+
+  :root {
+    --bg: #070a13;
+    --surface: #0e1322;
+    --surface-card: rgba(15, 23, 42, 0.6);
+    --surface-hover: rgba(30, 41, 59, 0.85);
+    --surface-solid: #0f172a;
+    --border: rgba(59, 130, 246, 0.15);
+    --border-hover: rgba(59, 130, 246, 0.3);
+    --border-focus: #3b82f6;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --accent-glow: rgba(59, 130, 246, 0.3);
+    
+    --crit: #ef4444;
+    --high: #f97316;
+    --med: #f59e0b;
+    --low: #3b82f6;
+    --info: #64748b;
+    --ok: #10b981;
+    
+    --glow-crit: rgba(239, 68, 68, 0.25);
+    --glow-high: rgba(249, 115, 22, 0.25);
+    --glow-med: rgba(245, 158, 11, 0.25);
+    --glow-low: rgba(59, 130, 246, 0.25);
+    --glow-ok: rgba(16, 185, 129, 0.25);
+  }
+
+  @media print {
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface-card: #f8fafc;
+      --surface-hover: #f1f5f9;
+      --surface-solid: #f8fafc;
+      --border: #cbd5e1;
+      --border-hover: #94a3b8;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #1e40af;
+      --accent-gradient: none;
+      --accent-glow: none;
+      
+      --crit: #b91c1c;
+      --high: #c2410c;
+      --med: #b45309;
+      --low: #1d4ed8;
+      --info: #475569;
+      --ok: #15803d;
+      
+      --glow-crit: none;
+      --glow-high: none;
+      --glow-med: none;
+      --glow-low: none;
+      --glow-ok: none;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1050px;
+    margin: 40px auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  code, pre, .mono, .ioc-value {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+  }
+
+  /* ---- table of contents / navigation ---- */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 19, 34, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  nav.toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  nav.toc a:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* ---- sections ---- */
+  section {
+    padding: 48px 56px;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-of-type {
+    border-bottom: none;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  }
+  h2::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  h3 {
+    font-size: 16px;
+    margin: 28px 0 14px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ---- cover page ---- */
+  #cover {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(8, 11, 17, 0.95) 100%);
+    padding: 0;
+    border-bottom: 2px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #cover::after {
+    content: "";
+    position: absolute;
+    top: -150px;
+    right: -150px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .conf-banner {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 12px;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .conf-banner-high {
+    background: var(--crit);
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  }
+
+  .conf-banner-normal {
+    background: var(--info);
+  }
+
+  .cover-body {
+    padding: 64px 56px;
+  }
+
+  .cover-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+
+  .cover-title-area {
+    flex: 1;
+  }
+
+  .cover-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .cover-sub {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .cover-badge-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .cover-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+
+  .cover-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cover-item .k {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .cover-item .v {
+    font-size: 14px;
+    color: var(--text);
+    word-break: break-all;
+    font-weight: 500;
+  }
+
+  /* ---- badge styling ---- */
+  .sev-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+  }
+
+  .sev-critical {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--crit);
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 12px var(--glow-crit);
+  }
+
+  .sev-high {
+    background: rgba(249, 115, 22, 0.15);
+    color: var(--high);
+    border-color: rgba(249, 115, 22, 0.35);
+    box-shadow: 0 0 12px var(--glow-high);
+  }
+
+  .sev-medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--med);
+    border-color: rgba(245, 158, 11, 0.35);
+    box-shadow: 0 0 12px var(--glow-med);
+  }
+
+  .sev-low {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--low);
+    border-color: rgba(59, 130, 246, 0.35);
+    box-shadow: 0 0 12px var(--glow-low);
+  }
+
+  .sev-info {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--info);
+    border-color: rgba(100, 116, 139, 0.35);
+  }
+
+  /* ---- executive summary ---- */
+  blockquote.summary {
+    background: var(--surface-card);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 24px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #e2e8f0;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ---- cards grid ---- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px var(--accent-glow);
+  }
+
+  .card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .card .value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* ---- timeline ---- */
+  .timeline {
+    position: relative;
+    padding-left: 36px;
+    margin-left: 8px;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent) 0%, var(--border) 100%);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .tl-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .tl-item .dot {
+    position: absolute;
+    left: -36px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface-solid);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  .tl-content {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  .tl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tl-item .tl-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .tl-item .tl-time {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Fira Code', monospace;
+  }
+
+  .tl-item .tl-desc {
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+
+  /* ---- visual evidence ---- */
+  .evidence {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .evidence figure {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #05070c;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .evidence figure:hover {
+    transform: scale(1.02);
+    border-color: var(--accent);
+  }
+
+  .evidence img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .evidence figcaption {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    background: rgba(15, 23, 42, 0.3);
+  }
+
+  .evidence figcaption b {
+    color: var(--text);
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .stat {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat b {
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* ---- tables ---- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: rgba(15, 23, 42, 0.8);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.2);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: rgba(30, 41, 59, 0.4);
+  }
+
+  .kv th {
+    width: 32%;
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--text);
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  
+  .kv td {
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ---- pill labels ---- */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid transparent;
+  }
+
+  .t-ip { background: rgba(142, 68, 173, 0.15); color: #c39bd3; border-color: rgba(142, 68, 173, 0.3); }
+  .t-domain { background: rgba(41, 128, 185, 0.15); color: #85c1e9; border-color: rgba(41, 128, 185, 0.3); }
+  .t-url { background: rgba(22, 160, 133, 0.15); color: #73c6b6; border-color: rgba(22, 160, 133, 0.3); }
+  .t-hash_md5, .t-hash_sha1, .t-hash_sha256 { background: rgba(127, 140, 141, 0.15); color: #bdc3c7; border-color: rgba(127, 140, 141, 0.3); }
+  .t-email { background: rgba(211, 84, 0, 0.15); color: #f5b041; border-color: rgba(211, 84, 0, 0.3); }
+  .t-handle { background: rgba(192, 57, 43, 0.15); color: #f1948a; border-color: rgba(192, 57, 43, 0.3); }
+  .t-wallet { background: rgba(243, 156, 18, 0.15); color: #f7dc6f; border-color: rgba(243, 156, 18, 0.3); }
+  .t-file_path { background: rgba(52, 73, 94, 0.15); color: #a6acaf; border-color: rgba(52, 73, 94, 0.3); }
+  .t-unknown { background: rgba(149, 165, 166, 0.15); color: #ccd1d1; border-color: rgba(149, 165, 166, 0.3); }
+
+  .v-malicious { background: rgba(239, 68, 68, 0.15); color: var(--crit); border: 1px solid rgba(239, 68, 68, 0.3); }
+  .v-suspicious { background: rgba(249, 115, 22, 0.15); color: var(--orange); border: 1px solid rgba(249, 115, 22, 0.3); }
+  .v-clean { background: rgba(16, 185, 129, 0.15); color: var(--ok); border: 1px solid rgba(16, 185, 129, 0.3); }
+  .v-unknown { background: rgba(100, 116, 139, 0.15); color: var(--info); border: 1px solid rgba(100, 116, 139, 0.3); }
+
+  .risk-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 48px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  /* ---- progress meters ---- */
+  .meter-container {
+    margin: 16px 0;
+  }
+  
+  .meter {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 18px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .meter > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent) 0%, #6366f1 100%);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    transition: width 1s ease-in-out;
+  }
+
+  .meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-top: 6px;
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* ---- tags ---- */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  
+  .tags span {
+    display: inline-block;
+    background: rgba(59, 130, 246, 0.08);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .tags span:hover {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  /* ---- actions list ---- */
+  ol.priority {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  ol.priority li {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  ol.priority li:hover {
+    transform: translateX(4px);
+    border-color: var(--accent);
+  }
+  
+  .prio {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  }
+  
+  .prio-1 { background: rgba(239, 68, 68, 0.15); color: var(--crit); border: 1px solid rgba(239, 68, 68, 0.4); }
+  .prio-2 { background: rgba(249, 115, 22, 0.15); color: var(--high); border: 1px solid rgba(249, 115, 22, 0.4); }
+  .prio-3 { background: rgba(59, 130, 246, 0.15); color: var(--low); border: 1px solid rgba(59, 130, 246, 0.4); }
+
+  /* ---- attribution gauge ---- */
+  .gauge-container {
+    margin: 16px 0;
+  }
+  
+  .gauge {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 24px;
+    overflow: hidden;
+    max-width: 450px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .gauge > span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    background: linear-gradient(90deg, var(--ok) 0%, var(--med) 50%, var(--crit) 100%);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding-right: 12px;
+    transition: width 1s ease-in-out;
+    font-family: 'Fira Code', monospace;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+
+  .disclaimer {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .disclaimer::before {
+    content: "ℹ";
+    font-style: normal;
+    font-weight: 700;
+    color: var(--info);
+  }
+
+  /* ---- appendix / details ---- */
+  details {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 16px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  details summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text);
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.4);
+    outline: none;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  
+  details summary:hover {
+    background: rgba(15, 23, 42, 0.7);
+  }
+  
+  pre.diff {
+    background: #05070c;
+    color: #9cdcfe;
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-top: 1px solid var(--border);
+    max-height: 500px;
+    line-height: 1.5;
+  }
+
+  /* ---- footer ---- */
+  footer {
+    background: rgba(15, 23, 42, 0.9);
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    padding: 32px 56px;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  footer .hash {
+    font-family: 'Fira Code', monospace;
+    word-break: break-all;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* ============== PRINT ============== */
+  @media print {
+    body {
+      background: #ffffff;
+      background-image: none;
+    }
+    nav.toc, .no-print {
+      display: none !important;
+    }
+    .page {
+      max-width: none;
+      margin: 0;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+    }
+    section {
+      page-break-before: always;
+      padding: 24px;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    #cover {
+      page-break-before: avoid;
+      background: #ffffff;
+      color: #0f172a;
+      border-bottom: 2px solid #0f172a;
+    }
+    .cover-title {
+      -webkit-text-fill-color: initial;
+      background: none;
+      color: #0f172a;
+    }
+    .cover-grid {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+    }
+    .cover-item .v {
+      color: #0f172a;
+    }
+    .cards {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .card {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+    .card .value {
+      color: #0f172a;
+    }
+    blockquote.summary {
+      background: #f8fafc;
+      color: #0f172a;
+      border-left: 4px solid #1e40af;
+    }
+    a[href]::after {
+      content: " (" attr(href) ")";
+      font-size: 10px;
+      color: #64748b;
+    }
+    .timeline::before {
+      background: #1e40af;
+    }
+    .tl-content {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+    }
+    .tl-item .tl-title {
+      color: #0f172a;
+    }
+    .tl-item .dot {
+      background: #ffffff;
+      border: 2px solid #1e40af;
+    }
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-bottom: 2px solid #cbd5e1;
+    }
+    td {
+      background: #ffffff;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .kv th {
+      background: #f8fafc;
+      color: #0f172a;
+      border-right: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .kv td {
+      border-bottom: 1px solid #cbd5e1;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <nav class="toc no-print">
+    <a href="#cover">Cover</a>
+    <a href="#executive-summary">Summary</a>
+    <a href="#timeline">Timeline</a>
+    <a href="#visual-evidence">Evidence</a>
+    <a href="#threat-analysis">Analysis</a>
+    <a href="#ioc-inventory">IOCs</a>
+    <a href="#threat-intelligence">Threat Intel</a>
+    <a href="#attribution">Attribution</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+
+  {# ===================== COVER ===================== #}
+  <section id="cover">
+    <div class="conf-banner {{ 'conf-banner-high' if is_high_severity else 'conf-banner-normal' }}">
+      Confidential{{ " — Restricted Distribution" if is_high_severity else "" }}
+    </div>
+    <div class="cover-body">
+      <div class="cover-header">
+        <div class="cover-title-area">
+          <h1 class="cover-title">WIDIRS Forensic Incident Report</h1>
+          <div class="cover-sub">Web Defacement Investigation &amp; Response System</div>
+        </div>
+        <div class="cover-badge-container">
+          <span class="sev-badge sev-{{ severity }}">{{ severity }} · {{ metrics.risk_score }}/100</span>
+        </div>
+      </div>
+      <div class="cover-grid">
+        <div class="cover-item">
+          <span class="k">Report ID</span>
+          <span class="v mono">{{ report_id }}</span>
+        </div>
+        <div class="cover-item">
+          <span class="k">Generated At</span>
+          <span class="v">{{ generated_at }} UTC</span>
+        </div>
+        <div class="cover-item">
+          <span class="k">Analyst</span>
+          <span class="v">{{ analyst }}</span>
+        </div>
+        <div class="cover-item">
+          <span class="k">Target URL</span>
+          <span class="v mono">{{ url }}</span>
+        </div>
+        <div class="cover-item">
+          <span class="k">Detection Time</span>
+          <span class="v">{{ detected_at }} UTC</span>
+        </div>
+        <div class="cover-item">
+          <span class="k">Chain of Custody ID</span>
+          <span class="v mono">{{ report_sha256 }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ===================== EXECUTIVE SUMMARY ===================== #}
+  <section id="executive-summary">
+    <h2>Executive Summary</h2>
+    <blockquote class="summary">{{ summary }}</blockquote>
+    <div class="cards">
+      <div class="card">
+        <div class="label">Risk Score</div>
+        <div class="value" style="color: {{ 'var(--crit)' if metrics.risk_score >= 70 else ('var(--high)' if metrics.risk_score >= 40 else 'var(--ok)') }}">{{ metrics.risk_score }}/100</div>
+      </div>
+      <div class="card">
+        <div class="label">Threat Type</div>
+        <div class="value" style="text-transform: capitalize;">{{ (metrics.threat_type or "unknown").replace('_', ' ') }}</div>
+      </div>
+      <div class="card">
+        <div class="label">IOCs Found</div>
+        <div class="value">{{ metrics.ioc_count }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Confidence</div>
+        <div class="value">{{ metrics.confidence_pct }}%</div>
+      </div>
+    </div>
+  </section>
+
+  {# ===================== TIMELINE ===================== #}
+  <section id="timeline">
+    <h2>Incident Timeline</h2>
+    <div class="timeline">
+      {% for ev in timeline %}
+      <div class="tl-item">
+        <span class="dot">{{ ev.icon }}</span>
+        <div class="tl-content">
+          <div class="tl-header">
+            <span class="tl-title">{{ ev.title }}</span>
+            <span class="tl-time">{{ ev.timestamp }}</span>
+          </div>
+          <div class="tl-desc">{{ ev.description }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ===================== VISUAL EVIDENCE ===================== #}
+  <section id="visual-evidence">
+    <h2>Visual Evidence</h2>
+    <div class="evidence">
+      <figure>
+        <img src="{{ images.before }}" alt="Baseline screenshot">
+        <figcaption>
+          <b>Baseline State (Before)</b>
+          {% if not images.has_before %}<br><span style="color: var(--crit); font-weight: 500;">⚠️ Not Available</span>{% endif %}
+          <br>{{ detected_at }} UTC
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="{{ images.after }}" alt="Current screenshot">
+        <figcaption>
+          <b>Current State (After)</b>
+          {% if not images.has_after %}<br><span style="color: var(--crit); font-weight: 500;">⚠️ Not Available</span>{% endif %}
+          <br>{{ detected_at }} UTC
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="{{ images.diff }}" alt="Difference overlay">
+        <figcaption>
+          <b>Difference Map (Diff)</b>
+          {% if not images.has_diff %}<br><span style="color: var(--crit); font-weight: 500;">⚠️ Not Available</span>{% endif %}
+          <br>{{ detected_at }} UTC
+        </figcaption>
+      </figure>
+    </div>
+    <div class="stat-row">
+      <div class="stat">
+        <span>SSIM Similarity Score</span>
+        <b>{{ "%.4f"|format(visual_stats.ssim|float) }}</b>
+      </div>
+      <div class="stat">
+        <span>Perceptual Hash Distance</span>
+        <b>{{ visual_stats.phash }}</b>
+      </div>
+      <div class="stat">
+        <span>Changed Visual Area</span>
+        <b>{{ "%.2f"|format(visual_stats.changed_area_pct|float) }}%</b>
+      </div>
+    </div>
+  </section>
+
+  {# ===================== THREAT ANALYSIS ===================== #}
+  <section id="threat-analysis">
+    <h2>Threat Analysis</h2>
+    {% if classification %}
+    <table class="kv">
+      <tr>
+        <th>Threat Type</th>
+        <td style="text-transform: capitalize;">{{ classification.threat_type.value }}</td>
+      </tr>
+      <tr>
+        <th>Severity</th>
+        <td><span class="sev-badge sev-{{ classification.severity.value }}">{{ classification.severity.value }}</span></td>
+      </tr>
+      <tr>
+        <th>Severity Score</th>
+        <td><strong>{{ classification.severity_score }}/100</strong></td>
+      </tr>
+      <tr>
+        <th>Threat Actor Category</th>
+        <td>{{ classification.threat_actor_category or "—" }}</td>
+      </tr>
+      <tr>
+        <th>False-Positive Probability</th>
+        <td>{{ "%.0f"|format(classification.false_positive_probability * 100) }}%</td>
+      </tr>
+      <tr>
+        <th>AI Classifier Model</th>
+        <td class="mono">{{ classification.model_used or "—" }}</td>
+      </tr>
+      <tr>
+        <th>Analyst/Classifier Notes</th>
+        <td style="line-height: 1.6;">{{ classification.analyst_notes or "—" }}</td>
+      </tr>
+    </table>
+
+    <h3>Classification Confidence</h3>
+    <div class="meter-container">
+      <div class="meter" title="{{ (classification.confidence * 100)|round|int }}%">
+        <span style="width: {{ (classification.confidence * 100)|round|int }}%;"></span>
+      </div>
+      <div class="meter-label">
+        <span>Probability Assessment</span>
+        <span>{{ (classification.confidence * 100)|round|int }}% Confidence</span>
+      </div>
+    </div>
+
+    <h3>Identified Attack Vectors</h3>
+    <div class="tags">
+      {% for v in classification.attack_vectors %}
+      <span>{{ v }}</span>
+      {% else %}
+      <span>None identified</span>
+      {% endfor %}
+    </div>
+
+    <h3>Prioritized Actions &amp; Mitigation Strategy</h3>
+    <ol class="priority">
+      {% for action in classification.recommended_actions %}
+      {% set prio_num = loop.index if loop.index <= 3 else 3 %}
+      <li>
+        <span class="prio prio-{{ prio_num }}">P{{ prio_num }}</span>
+        <span>{{ action }}</span>
+      </li>
+      {% else %}
+      <li>
+        <span class="prio prio-1">P1</span>
+        <span>Review the full forensic evidence and engage incident response protocol immediately.</span>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p style="color: var(--muted); font-style: italic;">No classification data available for this incident.</p>
+    {% endif %}
+  </section>
+
+  {# ===================== IOC INVENTORY ===================== #}
+  <section id="ioc-inventory">
+    <h2>IOC Inventory</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Value (Defanged)</th>
+          <th>Type</th>
+          <th>Confidence</th>
+          <th>Threat Intel Risk</th>
+          <th>Context</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in ioc_rows %}
+        <tr>
+          <td class="ioc-value">{{ r.value_defanged }}</td>
+          <td><span class="pill t-{{ r.type }}">{{ r.type }}</span></td>
+          <td>{{ "%.0f"|format(r.confidence * 100) }}%</td>
+          <td>
+            {% set pct = (r.ti_risk * 100)|round|int %}
+            <span class="risk-badge"
+              style="background: {{ 'var(--crit)' if r.ti_risk >= 0.7 else ('var(--high)' if r.ti_risk >= 0.4 else 'var(--ok)') }}; box-shadow: 0 0 8px {{ 'var(--glow-crit)' if r.ti_risk >= 0.7 else ('var(--glow-high)' if r.ti_risk >= 0.4 else 'var(--glow-ok)') }};">
+              {{ "%.2f"|format(r.ti_risk) }}
+            </span>
+          </td>
+          <td>{{ r.context or "—" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" style="text-align: center; color: var(--muted); font-style: italic; padding: 24px;">
+            No IOCs were extracted for this incident.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ===================== THREAT INTELLIGENCE ===================== #}
+  <section id="threat-intelligence">
+    <h2>Threat Intelligence Enrichment</h2>
+    <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+      <span class="risk-badge v-malicious">{{ ti_aggregate.malicious }} Malicious</span>
+      <span class="risk-badge v-suspicious">{{ ti_aggregate.suspicious }} Suspicious</span>
+      <span class="risk-badge v-clean">{{ ti_aggregate.clean }} Clean</span>
+      <span class="risk-badge v-unknown">{{ ti_aggregate.unknown }} Unknown</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>IOC (Defanged)</th>
+          <th>Type</th>
+          <th>Verdict</th>
+          <th>VirusTotal</th>
+          <th>AbuseIPDB</th>
+          <th>URLhaus</th>
+          <th>TI Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in ti_rows %}
+        <tr>
+          <td class="ioc-value">{{ r.value_defanged }}</td>
+          <td><span class="pill t-{{ r.type }}">{{ r.type }}</span></td>
+          <td><span class="risk-badge v-{{ r.verdict }}">{{ r.verdict }}</span></td>
+          <td>{{ r.vt_verdict }} ({{ r.vt_malicious }})</td>
+          <td>{{ r.abuse_score }}</td>
+          <td>{{ r.urlhaus_status }}</td>
+          <td><strong>{{ "%.2f"|format(r.ti_risk) }}</strong></td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" style="text-align: center; color: var(--muted); font-style: italic; padding: 24px;">
+            No threat-intelligence enrichment available.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {# ===================== ATTRIBUTION ===================== #}
+  <section id="attribution">
+    <h2>Attribution Profile</h2>
+    {% if attribution %}
+    {% set aconf = (attribution.confidence * 100)|round|int %}
+    <h3>Attribution Confidence Assessment</h3>
+    <div class="gauge-container">
+      <div class="gauge"><span style="width: {{ aconf if aconf > 8 else 8 }}%;">{{ aconf }}%</span></div>
+    </div>
+
+    <table class="kv" style="margin-top: 20px;">
+      <tr>
+        <th>Suspected Actor</th>
+        <td style="font-weight: 700; color: var(--text);">{{ attribution.suspected_actor or "unknown" }}</td>
+      </tr>
+      <tr>
+        <th>Suspected Group / Campaign</th>
+        <td>{{ attribution.suspected_group or "—" }}</td>
+      </tr>
+      <tr>
+        <th>Motivation Profile</th>
+        <td>{{ attribution.motivation or "—" }}</td>
+      </tr>
+      <tr>
+        <th>Actor Handles / Aliases</th>
+        <td class="mono">{{ attribution.actor_handles|join(", ") or "—" }}</td>
+      </tr>
+      <tr>
+        <th>TTP Summary (Tactics, Techniques, &amp; Procedures)</th>
+        <td style="line-height: 1.6;">{{ attribution.ttp_summary or "—" }}</td>
+      </tr>
+    </table>
+
+    {% if attribution.evidence %}
+    <h3>Corroborating Evidence</h3>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 120px;">Index</th>
+          <th>Findings &amp; Indicators</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in attribution.evidence %}
+        <tr>
+          <td class="mono">EVD-{{ "%02d"|format(loop.index) }}</td>
+          <td>{{ item }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    <p class="disclaimer">Attribution is probabilistic and should not be treated as definitive. It is provided to support, not replace, human analyst judgement.</p>
+    {% else %}
+    <p style="color: var(--muted); font-style: italic;">No attribution analysis was performed for this incident.</p>
+    <p class="disclaimer">Attribution is probabilistic and should not be treated as definitive.</p>
+    {% endif %}
+  </section>
+
+  {# ===================== APPENDIX ===================== #}
+  <section id="appendix">
+    <h2>Technical Appendix</h2>
+
+    <h3>A. Raw Unified Diff</h3>
+    <details>
+      <summary>View HTML Structure Diff</summary>
+      <pre class="diff">{{ appendix.unified_diff or "No diff captured." }}</pre>
+    </details>
+
+    <h3>B. Captured Response Headers</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>HTTP Header Field</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k, v in appendix.headers.items() %}
+        <tr>
+          <td class="mono" style="font-weight: 600;">{{ k }}</td>
+          <td class="mono">{{ v }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="2" style="text-align: center; color: var(--muted); font-style: italic; padding: 12px;">
+            No response headers recorded.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3>C. Cryptographic Chain of Custody Hashes</h3>
+    <table class="kv">
+      <tr>
+        <th>Raw HTML Payload Hash (SHA-256)</th>
+        <td class="mono">{{ appendix.hashes.html_hash or "—" }}</td>
+      </tr>
+      <tr>
+        <th>Screenshot Artifact Hash (SHA-256)</th>
+        <td class="mono">{{ appendix.hashes.screenshot_hash or "—" }}</td>
+      </tr>
+      <tr>
+        <th>Report PDF Hash (SHA-256)</th>
+        <td class="mono">{{ report_sha256 }}</td>
+      </tr>
+    </table>
+
+    <h3>D. System Environment &amp; Scan Metadata</h3>
+    <table class="kv">
+      <tr>
+        <th>WIDIRS Engine Version</th>
+        <td class="mono">v{{ widirs_version }}</td>
+      </tr>
+      <tr>
+        <th>Python Core Version</th>
+        <td class="mono">{{ python_version }}</td>
+      </tr>
+      <tr>
+        <th>Scan Pipeline Execution Time</th>
+        <td>{{ appendix.scan_duration_s }} seconds</td>
+      </tr>
+    </table>
+  </section>
+
+  {# ===================== FOOTER ===================== #}
+  <footer>
+    <div>Report SHA-256 Hash: <span class="hash">{{ report_sha256 }}</span></div>
+    <div>Confidential Forensic Report | Generated by WIDIRS v{{ widirs_version }} | Date: {{ generated_at }} UTC</div>
+  </footer>
+
+</div>
+</body>
+</html>

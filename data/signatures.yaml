@@ -1,0 +1,293 @@
+# WIDIRS - Defacement attribution signature database
+#
+# Fictional-but-realistic threat group profiles used by the signature-matching
+# stage of the attribution engine. All groups, handles, domains and wallet
+# prefixes below are invented for testing and MUST NOT be treated as real
+# threat intelligence.
+#
+# Schema (per entry):
+#   group_name:        str
+#   aliases:           List[str]
+#   motivation:        financial | hacktivist | state | vandalism
+#   target_sectors:    List[str]
+#   region:            str
+#   language:          str
+#   sophistication:    int (1-5)
+#   signatures:
+#     text_patterns:   List[str]   strings found in defacement messages
+#     wallet_patterns: List[str]   partial wallet prefixes
+#     domains:         List[str]   known C2 / infrastructure domains
+#     handle_patterns: List[str]   regex patterns for nicknames
+#     tool_signatures: List[str]   tool-specific strings
+#   ttp_ids:           List[str]   MITRE ATT&CK technique IDs
+#   confidence_weight: float       base multiplier for this group's score
+
+groups:
+  - group_name: "Crimson Vanguard"
+    aliases: ["CrimsonVgd", "RedFront Crew", "CV-Team"]
+    motivation: "hacktivist"
+    target_sectors: ["government", "defense", "media"]
+    region: "Eastern Europe"
+    language: "ru"
+    sophistication: 4
+    signatures:
+      text_patterns:
+        - "Hacked by Crimson Vanguard"
+        - "Свобода для народа"
+        - "your firewall is a joke"
+        - "We do not forgive, we do not forget the corruption"
+      wallet_patterns:
+        - "bc1qcv"
+        - "0xCV4"
+      domains:
+        - "crimson-vgd.onion.pet"
+        - "redfront-c2.duckdns.org"
+      handle_patterns:
+        - "(?i)crimson[_-]?vanguard"
+        - "(?i)\\bCV[-_]?team\\b"
+      tool_signatures:
+        - "X-Defacer: CV-Kit/2.3"
+        - "/* injected by cv_loader */"
+    ttp_ids: ["T1190", "T1059.001", "T1505.003", "T1491.002"]
+    confidence_weight: 0.95
+
+  - group_name: "Desert Cobra Brigade"
+    aliases: ["DCB", "ScorpionNet", "Cobra-7"]
+    motivation: "state"
+    target_sectors: ["energy", "telecom", "critical-infrastructure"]
+    region: "Middle East"
+    language: "ar"
+    sophistication: 5
+    signatures:
+      text_patterns:
+        - "Owned by Desert Cobra"
+        - "the sands remember everything"
+        - "operation silent dune"
+      wallet_patterns:
+        - "bc1qdcb"
+        - "44DCb"
+      domains:
+        - "cobra-update.cdn-static.net"
+        - "dune-telemetry.azureedge-fake.net"
+      handle_patterns:
+        - "(?i)desert[_-]?cobra"
+        - "(?i)\\bcobra[-_]?7\\b"
+      tool_signatures:
+        - "DuneLoader/1.0"
+        - "x-cobra-build:"
+    ttp_ids: ["T1190", "T1133", "T1505.003", "T1027", "T1071.001"]
+    confidence_weight: 0.90
+
+  - group_name: "PixelReaper Collective"
+    aliases: ["PxReaper", "GhostPixels", "ReaperZ"]
+    motivation: "vandalism"
+    target_sectors: ["education", "small-business", "blogs"]
+    region: "Southeast Asia"
+    language: "en"
+    sophistication: 2
+    signatures:
+      text_patterns:
+        - "Pwned by PixelReaper"
+        - "your security = 0"
+        - "just for the lulz"
+        - "greetz to all my homies"
+      wallet_patterns:
+        - "1Pxr"
+      domains:
+        - "pixelreaper.rf.gd"
+        - "reaperz-mirror.000webhostapp.com"
+      handle_patterns:
+        - "(?i)pixel[_-]?reaper"
+        - "(?i)\\breaperz?\\b"
+      tool_signatures:
+        - "Mass Deface Tool v4"
+        - "<!-- PxR was here -->"
+    ttp_ids: ["T1190", "T1505.003", "T1491.001"]
+    confidence_weight: 0.55
+
+  - group_name: "Silent Ledger Syndicate"
+    aliases: ["SLS", "LedgerLords", "QuietCoin"]
+    motivation: "financial"
+    target_sectors: ["finance", "e-commerce", "fintech"]
+    region: "West Africa"
+    language: "en"
+    sophistication: 4
+    signatures:
+      text_patterns:
+        - "Your data is encrypted by Silent Ledger"
+        - "pay before the timer runs out"
+        - "contact us on TOX to negotiate"
+      wallet_patterns:
+        - "bc1qsls"
+        - "0xSL3"
+        - "4SLedg"
+      domains:
+        - "ledger-pay.secure-portal.cc"
+        - "sls-decrypt.onion.ws"
+      handle_patterns:
+        - "(?i)silent[_-]?ledger"
+        - "(?i)\\bledgerlords?\\b"
+      tool_signatures:
+        - "SLS-Crypt/3.1"
+        - "x-ransom-id:"
+    ttp_ids: ["T1486", "T1490", "T1657", "T1567.002"]
+    confidence_weight: 0.88
+
+  - group_name: "Azure Falcon Unit"
+    aliases: ["AFU", "SkyTalon", "Falcon-9x"]
+    motivation: "state"
+    target_sectors: ["aerospace", "government", "research"]
+    region: "East Asia"
+    language: "zh"
+    sophistication: 5
+    signatures:
+      text_patterns:
+        - "corrected for the record"
+        - "the falcon sees all"
+      wallet_patterns:
+        - "bc1qafu"
+      domains:
+        - "falcon-sync.staticontent.io"
+        - "talon-beacon.cloudfronted-fake.net"
+      handle_patterns:
+        - "(?i)azure[_-]?falcon"
+        - "(?i)\\bfalcon[-_]?9x\\b"
+      tool_signatures:
+        - "TalonImplant/2.x"
+        - "x-afu-tag:"
+    ttp_ids: ["T1190", "T1505.003", "T1027", "T1071.004", "T1140"]
+    confidence_weight: 0.92
+
+  - group_name: "Neon Jackal Front"
+    aliases: ["NJF", "JackalCrew", "NeonZ"]
+    motivation: "hacktivist"
+    target_sectors: ["media", "ngo", "political-parties"]
+    region: "South America"
+    language: "es"
+    sophistication: 3
+    signatures:
+      text_patterns:
+        - "Hackeado por Neon Jackal"
+        - "el pueblo no se rinde"
+        - "free the press"
+        - "we are the neon jackals"
+      wallet_patterns:
+        - "1NJF"
+        - "0xNJ7"
+      domains:
+        - "neonjackal.hopto.org"
+        - "njf-press.serveblog.net"
+      handle_patterns:
+        - "(?i)neon[_-]?jackal"
+        - "(?i)\\bjackalcrew\\b"
+      tool_signatures:
+        - "JackalDeface/1.2"
+        - "<!-- njf -->"
+    ttp_ids: ["T1190", "T1059.007", "T1491.002"]
+    confidence_weight: 0.70
+
+  - group_name: "Iron Mantis Squad"
+    aliases: ["IMS", "MantisGhost", "IronZero"]
+    motivation: "vandalism"
+    target_sectors: ["gaming", "forums", "hosting"]
+    region: "Western Europe"
+    language: "en"
+    sophistication: 2
+    signatures:
+      text_patterns:
+        - "Defaced by Iron Mantis"
+        - "patch your servers noob"
+        - "system owned, gg"
+      wallet_patterns:
+        - "1IMs"
+      domains:
+        - "ironmantis.kozow.com"
+        - "mantis-mirror.freedynamicdns.net"
+      handle_patterns:
+        - "(?i)iron[_-]?mantis"
+        - "(?i)\\bironzero\\b"
+      tool_signatures:
+        - "MantisKit/0.9"
+        - "<!-- IMS owns -->"
+    ttp_ids: ["T1190", "T1505.003", "T1491.001"]
+    confidence_weight: 0.50
+
+  - group_name: "Obsidian Tide Group"
+    aliases: ["OTG", "TideRunners", "BlackWave"]
+    motivation: "financial"
+    target_sectors: ["e-commerce", "payment", "retail"]
+    region: "Eastern Europe"
+    language: "ru"
+    sophistication: 4
+    signatures:
+      text_patterns:
+        - "skimmed by Obsidian Tide"
+        - "thanks for your card details"
+      wallet_patterns:
+        - "bc1qotg"
+        - "0xOT9"
+      domains:
+        - "tide-collect.analytics-cdn.cc"
+        - "obsidian-gate.b-cdn-fake.net"
+      handle_patterns:
+        - "(?i)obsidian[_-]?tide"
+        - "(?i)\\bblackwave\\b"
+      tool_signatures:
+        - "TideSkimmer/2.0"
+        - "/* otg_magecart */"
+    ttp_ids: ["T1190", "T1059.007", "T1056.003", "T1567.002"]
+    confidence_weight: 0.85
+
+  - group_name: "Saffron Lotus Movement"
+    aliases: ["SLM", "LotusFlag", "SaffronZ"]
+    motivation: "hacktivist"
+    target_sectors: ["government", "tourism", "religious-orgs"]
+    region: "South Asia"
+    language: "hi"
+    sophistication: 3
+    signatures:
+      text_patterns:
+        - "Hacked by Saffron Lotus"
+        - "जय हिंद"
+        - "respect our heritage"
+        - "the lotus blooms again"
+      wallet_patterns:
+        - "1SLm"
+      domains:
+        - "saffronlotus.myftp.org"
+        - "slm-banner.serveblog.net"
+      handle_patterns:
+        - "(?i)saffron[_-]?lotus"
+        - "(?i)\\blotusflag\\b"
+      tool_signatures:
+        - "LotusDeface/3.0"
+        - "<!-- slm -->"
+    ttp_ids: ["T1190", "T1059.007", "T1491.002"]
+    confidence_weight: 0.68
+
+  - group_name: "Frostbyte Phantoms"
+    aliases: ["FBP", "GhostFrost", "PhantomZero"]
+    motivation: "vandalism"
+    target_sectors: ["tech-startups", "saas", "developer-tools"]
+    region: "North America"
+    language: "en"
+    sophistication: 3
+    signatures:
+      text_patterns:
+        - "frozen by Frostbyte Phantoms"
+        - "ghosts in your stack"
+        - "0day kissed your server"
+      wallet_patterns:
+        - "bc1qfbp"
+        - "0xFB0"
+      domains:
+        - "frostbyte.chickenkiller.com"
+        - "phantom-drop.mooo.com"
+      handle_patterns:
+        - "(?i)frost[_-]?byte"
+        - "(?i)\\bphantomzero\\b"
+      tool_signatures:
+        - "FrostKit/1.5"
+        - "<!-- fbp phantom -->"
+    ttp_ids: ["T1190", "T1505.003", "T1059.006", "T1491.001"]
+    confidence_weight: 0.62
