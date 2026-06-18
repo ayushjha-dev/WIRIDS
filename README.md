@@ -1,5 +1,14 @@
-# <p align="center">🛡️ WIDIRS</p>
-# <p align="center"><em>Web Defacement Investigation & Response System</em></p>
+<div align="center">
+<pre>
+ 🛡️ Web Defacement Investigation & Response System 🛡️
+
+ __        _____ ____ ___ ____  ____
+ \ \      / /_ _|  _ \_ _|  _ \/ ___|
+  \ \ /\ / / | || | | | || |_) \___ \
+   \ V  V /  | || |_| | ||  _ < ___) |
+    \_/\_/  |___|____/___|_| \_\____/
+</pre>
+</div>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.11+">
