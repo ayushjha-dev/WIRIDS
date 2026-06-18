@@ -1,13 +1,19 @@
 # <p align="center">🛡️ WIDIRS</p>
 <p align="center"><em>Web Defacement Investigation & Response System</em></p>
 
-```text
+<table align="center">
+<tr>
+<td>
+<pre><code>
  __        _____ ____ ___ ____  ____
  \ \      / /_ _|  _ \_ _|  _ \/ ___|
   \ \ /\ / / | || | | | || |_) \___ \
    \ V  V /  | || |_| | ||  _ < ___) |
     \_/\_/  |___|____/___|_| \_\____/
-```
+</code></pre>
+</td>
+</tr>
+</table>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.11+">
