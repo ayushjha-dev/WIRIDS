@@ -50,12 +50,14 @@ Born from the conviction that *awareness precedes defense*, WIDIRS operates on a
 
 Every great system is born from the collaboration of minds united by purpose. **Team Task 3 Q1** is a fellowship of engineers, each contributing their unique perspective to this shared vision:
 
-| Visionary | Specialization | Essence |
+| Visionary | Role | Essence |
 | :---: | :---: | :--- |
-| **Ayush Kumar Jha** | *Security Philosophy & AI Intelligence* | Architected the soul of WIDIRS—the end-to-end incident response pipeline. Wove together Google Gemini's cognitive capabilities to perceive threat patterns and attribute adversaries with unprecedented clarity. |
-| **Niranjan Singh** | *Foundation & Memory* | Engineered the backbone—async SQLite persistence, intelligent caching, and the structured knowledge base that allows WIDIRS to learn and remember. |
-| **Parkash Kumar Yadav** | *Interface & Experience* | Crafted the window into WIDIRS's mind—a dashboard that speaks in glassmorphic elegance, rendering real-time streams of insight and historical narratives. |
-| **Harman Singh** | *Orchestration & Dispatch* | Built the neural pathways—Telegram communion, email conduits, and throttled alert intelligence that ensures humanity receives each warning with perfect timing. |
+| **Ayush Kumar Jha** | *Backend Developer* | Engineered the core backend orchestration, asynchronous task processing pipelines, and database integrations that power WIDIRS. |
+| **Harman Singh** | *Researcher* | Investigated threat actor patterns, designed security taxonomies, and integrated global OSINT threat intelligence feeds. |
+| **Parkash Kumar Yadav** | *Frontend Designer* | Crafted the user interface and visual identity of the system, including the glassmorphic web dashboard and reporting layout. |
+| **Niranjan Singh** | *Test and Assurance* | Developed the comprehensive pytest-based verification suite, validating system boundaries, mock integrations, and reliability. |
+
+
 
 ---
 

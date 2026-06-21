@@ -323,7 +323,9 @@ class ForensicReportGenerator:
                 )
                 rows = await cur.fetchall()
                 if len(rows) > 1:
-                    baseline_screenshot_path = rows[1]["screenshot_path"]
+                    baseline_screenshot_path = str(
+                        self.config.resolve_snapshot_path(rows[1]["screenshot_path"])
+                    )
 
             context = self._build_context(
                 incident,

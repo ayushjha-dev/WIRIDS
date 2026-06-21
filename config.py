@@ -113,6 +113,25 @@ class Settings(BaseSettings):
         self.report_dir.mkdir(parents=True, exist_ok=True)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
+    def resolve_snapshot_path(self, path: str | Path | None) -> Path:
+        """Resolve a snapshot path from the database.
+
+        If the path is absolute and does not exist (e.g. because the project
+        was moved or renamed), tries to resolve it relative to the current
+        configured snapshot directory.
+        """
+        if not path:
+            return Path()
+        p = Path(path)
+        if p.exists():
+            return p
+        parts = p.parts
+        if len(parts) >= 3:
+            fallback = self.snapshot_dir / parts[-3] / parts[-2] / parts[-1]
+            if fallback.exists():
+                return fallback
+        return p
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

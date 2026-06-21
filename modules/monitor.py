@@ -386,11 +386,12 @@ class WebsiteMonitor:
             return None
 
         try:
-            snap_dir = Path(snapshot["html_path"]).parent
+            html_path = self.config.resolve_snapshot_path(snapshot["html_path"])
+            snap_dir = html_path.parent
             metadata: Dict[str, Any] = json.loads(
                 (snap_dir / "metadata.json").read_text(encoding="utf-8")
             )
-            html = Path(snapshot["html_path"]).read_text(
+            html = html_path.read_text(
                 encoding="utf-8", errors="replace"
             )
         except (OSError, json.JSONDecodeError) as exc:

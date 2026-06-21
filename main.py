@@ -180,9 +180,13 @@ async def _load_baseline_artifacts(
     baseline = rows[1] if len(rows) > 1 else None
     if not baseline:
         return {"html": "", "screenshot": b""}
+
+    settings = get_settings()
+    html_path = settings.resolve_snapshot_path(baseline["html_path"])
+    screenshot_path = settings.resolve_snapshot_path(baseline["screenshot_path"])
     return {
-        "html": _read_text(baseline["html_path"]),
-        "screenshot": _read_bytes(baseline["screenshot_path"]),
+        "html": _read_text(str(html_path)),
+        "screenshot": _read_bytes(str(screenshot_path)),
     }
 
 
